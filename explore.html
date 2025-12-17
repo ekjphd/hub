@@ -190,7 +190,7 @@
     </nav>
 
     <div class="info-panel">
-        <h2>Explore the Constellation</h2>
+        <h2>Explore the Constellations</h2>
         <p>Hover over stars to see narrative titles. Click to read the full story. Connected stars represent related narratives—similar journeys, shared industries, or common challenges overcome.</p>
     </div>
 
@@ -265,9 +265,27 @@
             [250, 112, 154]   // Social Impact - rose
         ];
 
+        // Define constellation connections (which stars connect to form shapes)
+        const constellationConnections = [
+            // Technology & Innovation - forms a diamond/kite shape
+            [0, 1], [1, 2], [2, 3], [3, 0], [1, 3],
+            
+            // Arts & Media - forms a triangle
+            [4, 5], [5, 6], [6, 4],
+            
+            // Academia & Research - forms a square
+            [7, 8], [8, 9], [9, 10], [10, 7], [7, 9],
+            
+            // Business & Entrepreneurship - forms a triangle
+            [11, 12], [12, 13], [13, 11],
+            
+            // Social Impact & Advocacy - forms a triangle
+            [14, 15], [15, 16], [16, 14]
+        ];
+
         let hoveredStar = null;
-        const starSize = 8;
-        const hoverDistance = 15;
+        const starSize = 10;
+        const hoverDistance = 20;
 
         function setup() {
             let canvas = createCanvas(windowWidth, windowHeight);
@@ -276,42 +294,87 @@
             // Position narratives in constellation clusters
             const centerX = width / 2;
             const centerY = height / 2;
-            const clusterRadius = 150;
+            const clusterRadius = 120;
             const angleStep = TWO_PI / 5;
             
-            narratives.forEach((narrative, index) => {
-                const constellation = narrative.constellation;
-                const clusterAngle = constellation * angleStep;
-                const clusterX = centerX + cos(clusterAngle) * 250;
-                const clusterY = centerY + sin(clusterAngle) * 250;
-                
-                // Position within cluster
-                const localAngle = random(TWO_PI);
-                const localRadius = random(50, clusterRadius);
-                
-                narrative.x = clusterX + cos(localAngle) * localRadius;
-                narrative.y = clusterY + sin(localAngle) * localRadius;
-            });
+            // Technology constellation (0-3) - diamond shape
+            const techAngle = 0 * angleStep - PI/2;
+            const techX = centerX + cos(techAngle) * 280;
+            const techY = centerY + sin(techAngle) * 280;
+            narratives[0].x = techX;
+            narratives[0].y = techY - 80;
+            narratives[1].x = techX + 70;
+            narratives[1].y = techY;
+            narratives[2].x = techX;
+            narratives[2].y = techY + 80;
+            narratives[3].x = techX - 70;
+            narratives[3].y = techY;
+            
+            // Arts constellation (4-6) - triangle
+            const artsAngle = 1 * angleStep - PI/2;
+            const artsX = centerX + cos(artsAngle) * 280;
+            const artsY = centerY + sin(artsAngle) * 280;
+            narratives[4].x = artsX;
+            narratives[4].y = artsY - 70;
+            narratives[5].x = artsX + 60;
+            narratives[5].y = artsY + 60;
+            narratives[6].x = artsX - 60;
+            narratives[6].y = artsY + 60;
+            
+            // Academia constellation (7-10) - square
+            const acadAngle = 2 * angleStep - PI/2;
+            const acadX = centerX + cos(acadAngle) * 280;
+            const acadY = centerY + sin(acadAngle) * 280;
+            narratives[7].x = acadX - 60;
+            narratives[7].y = acadY - 60;
+            narratives[8].x = acadX + 60;
+            narratives[8].y = acadY - 60;
+            narratives[9].x = acadX + 60;
+            narratives[9].y = acadY + 60;
+            narratives[10].x = acadX - 60;
+            narratives[10].y = acadY + 60;
+            
+            // Business constellation (11-13) - triangle
+            const bizAngle = 3 * angleStep - PI/2;
+            const bizX = centerX + cos(bizAngle) * 280;
+            const bizY = centerY + sin(bizAngle) * 280;
+            narratives[11].x = bizX;
+            narratives[11].y = bizY - 70;
+            narratives[12].x = bizX + 60;
+            narratives[12].y = bizY + 60;
+            narratives[13].x = bizX - 60;
+            narratives[13].y = bizY + 60;
+            
+            // Social Impact constellation (14-16) - triangle
+            const socialAngle = 4 * angleStep - PI/2;
+            const socialX = centerX + cos(socialAngle) * 280;
+            const socialY = centerY + sin(socialAngle) * 280;
+            narratives[14].x = socialX;
+            narratives[14].y = socialY - 70;
+            narratives[15].x = socialX + 60;
+            narratives[15].y = socialY + 60;
+            narratives[16].x = socialX - 60;
+            narratives[16].y = socialY + 60;
         }
 
         function draw() {
             background(0, 0, 10);
             
-            // Draw connections within constellations
-            stroke(255, 255, 255, 20);
-            strokeWeight(1);
-            for (let i = 0; i < narratives.length; i++) {
-                for (let j = i + 1; j < narratives.length; j++) {
-                    if (narratives[i].constellation === narratives[j].constellation) {
-                        const d = dist(narratives[i].x, narratives[i].y, narratives[j].x, narratives[j].y);
-                        if (d < 200) {
-                            const alpha = map(d, 0, 200, 40, 0);
-                            const color = constellationColors[narratives[i].constellation];
-                            stroke(color[0], color[1], color[2], alpha);
-                            line(narratives[i].x, narratives[i].y, narratives[j].x, narratives[j].y);
-                        }
-                    }
-                }
+            // Draw constellation lines first (behind stars)
+            strokeWeight(1.5);
+            for (let connection of constellationConnections) {
+                const star1 = narratives[connection[0]];
+                const star2 = narratives[connection[1]];
+                const color = constellationColors[star1.constellation];
+                
+                // Main line
+                stroke(color[0], color[1], color[2], 120);
+                line(star1.x, star1.y, star2.x, star2.y);
+                
+                // Subtle glow effect
+                stroke(color[0], color[1], color[2], 30);
+                strokeWeight(3);
+                line(star1.x, star1.y, star2.x, star2.y);
             }
             
             // Check for hover
@@ -324,26 +387,46 @@
                 }
             }
             
-            // Draw stars
+            // Draw stars on top
             noStroke();
             for (let narrative of narratives) {
                 const isHovered = hoveredStar === narrative;
                 const color = constellationColors[narrative.constellation];
                 
-                // Glow effect
+                // Outer glow
+                fill(color[0], color[1], color[2], 40);
+                ellipse(narrative.x, narrative.y, starSize * 2.5, starSize * 2.5);
+                
+                // Enhanced glow on hover
                 if (isHovered) {
-                    fill(color[0], color[1], color[2], 60);
+                    fill(color[0], color[1], color[2], 80);
                     ellipse(narrative.x, narrative.y, starSize * 4, starSize * 4);
+                    
+                    // Highlight connected stars
+                    for (let connection of constellationConnections) {
+                        if (connection[0] === narratives.indexOf(narrative) || 
+                            connection[1] === narratives.indexOf(narrative)) {
+                            const connectedIdx = connection[0] === narratives.indexOf(narrative) ? 
+                                                connection[1] : connection[0];
+                            const connectedStar = narratives[connectedIdx];
+                            fill(color[0], color[1], color[2], 60);
+                            ellipse(connectedStar.x, connectedStar.y, starSize * 3, starSize * 3);
+                        }
+                    }
                 }
                 
-                // Star
-                fill(color[0], color[1], color[2], isHovered ? 255 : 200);
-                ellipse(narrative.x, narrative.y, isHovered ? starSize * 1.5 : starSize, isHovered ? starSize * 1.5 : starSize);
+                // Main star
+                fill(color[0], color[1], color[2], isHovered ? 255 : 220);
+                ellipse(narrative.x, narrative.y, isHovered ? starSize * 1.8 : starSize, isHovered ? starSize * 1.8 : starSize);
                 
-                // Twinkle effect
-                if (!isHovered && frameCount % 60 < 30 && random(1) > 0.98) {
-                    fill(255, 255, 255, 150);
-                    ellipse(narrative.x, narrative.y, starSize * 1.2, starSize * 1.2);
+                // Bright core
+                fill(255, 255, 255, isHovered ? 200 : 150);
+                ellipse(narrative.x, narrative.y, isHovered ? starSize * 0.9 : starSize * 0.5, isHovered ? starSize * 0.9 : starSize * 0.5);
+                
+                // Occasional twinkle
+                if (!isHovered && frameCount % 90 < 3 && random(1) > 0.97) {
+                    fill(255, 255, 255, 220);
+                    ellipse(narrative.x, narrative.y, starSize * 1.5, starSize * 1.5);
                 }
             }
             
@@ -370,13 +453,7 @@
 
         function windowResized() {
             resizeCanvas(windowWidth, windowHeight);
-            // Reposition stars proportionally
-            const scaleX = windowWidth / width;
-            const scaleY = windowHeight / height;
-            narratives.forEach(narrative => {
-                narrative.x *= scaleX;
-                narrative.y *= scaleY;
-            });
+            setup();
         }
     </script>
 </body>
