@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resources - Constellation Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 20px 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+
+        nav a:hover {
+            color: #9fa8da;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 140px 20px 80px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        section {
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #b8b8d4;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 10px;
+        }
+
+        h3 {
+            font-size: 1.3rem;
+            font-weight: 400;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            color: #9fa8da;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.05rem;
+            color: #f0f0f0;
+            margin-bottom: 15px;
+        }
+
+        .resource-list {
+            margin-top: 15px;
+        }
+
+        .resource-item {
+            background: rgba(25, 25, 45, 0.5);
+            border-left: 3px solid #667eea;
+            padding: 15px;
+            margin-bottom: 12px;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+
+        .resource-item:hover {
+            background: rgba(35, 35, 55, 0.7);
+        }
+
+        .resource-item a {
+            color: #9fa8da;
+            text-decoration: none;
+            font-size: 1.05rem;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .resource-item a:hover {
+            color: #667eea;
+        }
+
+        .resource-item .description {
+            color: #e0e0e0;
+            font-size: 0.95rem;
+            margin-top: 8px;
+            line-height: 1.6;
+        }
+
+        .coming-soon {
+            font-style: italic;
+            color: #9fa8da;
+            text-align: center;
+            padding: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            nav a {
+                font-size: 0.95rem;
+            }
+
+            .content {
+                padding: 120px 20px 80px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            section {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="explore.html">Explore</a></li>
+            <li><a href="stories.html">Stories</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </nav>
+
+    <div id="canvas-container"></div>
+
+    <div class="content">
+        <header>
+            <h1>RESOURCES</h1>
+        </header>
+
+        <section>
+            <h2>Workshop Materials</h2>
+            <p class="coming-soon">Materials from our workshops will be available here after each session concludes.</p>
+            
+            <h3>Narrative & Documentation</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="#">Interview Techniques Guide</a>
+                    <p class="description">Comprehensive guide to conducting effective interviews, including question frameworks and ethical considerations.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="#">History Harvest Toolkit</a>
+                    <p class="description">Step-by-step methods for community-based archival collection and digital preservation.</p>
+                </div>
+            </div>
+
+            <h3>Digital Skills & Tools</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="#">HTML Basics Workshop Slides</a>
+                    <p class="description">Introduction to web development fundamentals and creating your first web page.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="#">GitHub Collaboration Guide</a>
+                    <p class="description">Learn version control, collaborative workflows, and open-source contribution practices.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="#">Digital Storytelling Resources</a>
+                    <p class="description">Tools and platforms for creating multimodal narratives and interactive portfolios.</p>
+                </div>
+            </div>
+
+            <h3>Critical AI Literacy</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="#">AI in the Workplace: Workshop Materials</a>
+                    <p class="description">Resources on AI tools, ethical considerations, and strategies for responsible use.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="#">AI Bias & Ethics Discussion Guide</a>
+                    <p class="description">Frameworks for evaluating AI systems and advocating for equitable technology.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Women & Gender-Diverse Leaders in Tech</h2>
+            
+            <h3>Organizations & Networks</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="https://anitab.org/" target="_blank">AnitaB.org</a>
+                    <p class="description">Global nonprofit connecting women and non-binary technologists with resources, community, and opportunities.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.womenwhocode.com/" target="_blank">Women Who Code</a>
+                    <p class="description">International community supporting women in technology careers through networking and skill development.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.ncwit.org/" target="_blank">National Center for Women & Information Technology (NCWIT)</a>
+                    <p class="description">Research and programs focused on increasing gender diversity in computing and technology.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://girlswhocode.com/" target="_blank">Girls Who Code</a>
+                    <p class="description">Organization closing the gender gap in technology through education and career support.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.wocintechchat.com/" target="_blank">Women of Color in Tech</a>
+                    <p class="description">Community and chat platform amplifying the voices of women of color in technology.</p>
+                </div>
+            </div>
+
+            <h3>Research & Reports</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="https://www.kaporcenter.org/tech-leavers/" target="_blank">Tech Leavers Study</a>
+                    <p class="description">Research on why people voluntarily leave tech jobs, with focus on underrepresented groups.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.mckinsey.com/featured-insights/diversity-and-inclusion/women-in-the-workplace" target="_blank">Women in the Workplace Report</a>
+                    <p class="description">Annual study by McKinsey examining the state of women in corporate America.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.pewresearch.org/social-trends/2018/01/09/women-and-men-in-stem-often-at-odds-over-workplace-equity/" target="_blank">Pew Research: Women in STEM</a>
+                    <p class="description">Data and analysis on workplace equity challenges faced by women in STEM fields.</p>
+                </div>
+            </div>
+
+            <h3>Career Development & Mentorship</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="https://www.girldevelopit.com/" target="_blank">Girl Develop It</a>
+                    <p class="description">Nonprofit providing affordable programs for women interested in learning software development.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.talentpath.org/" target="_blank">Talent Path</a>
+                    <p class="description">Programs connecting emerging tech talent with career opportunities and mentorship.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.hiretechladies.com/" target="_blank">Tech Ladies</a>
+                    <p class="description">Community connecting women with technical roles and career opportunities in tech.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Leadership & Professional Development</h2>
+            
+            <h3>Women in Leadership</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="https://leanin.org/" target="_blank">Lean In</a>
+                    <p class="description">Community and resources for women pursuing leadership and professional ambitions.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.catalyst.org/" target="_blank">Catalyst</a>
+                    <p class="description">Global nonprofit supporting women in business through research and advisory services.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.ellevate.com/" target="_blank">Ellevate Network</a>
+                    <p class="description">Global network of professional women supporting each other's career growth.</p>
+                </div>
+            </div>
+
+            <h3>Workplace Equity & Inclusion</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="https://projectinclude.org/" target="_blank">Project Include</a>
+                    <p class="description">Nonprofit using data and advocacy to accelerate diversity and inclusion in tech.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.paradigmiq.com/" target="_blank">Paradigm</a>
+                    <p class="description">Strategy and research on building inclusive organizations and equitable workplaces.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.aauw.org/" target="_blank">American Association of University Women (AAUW)</a>
+                    <p class="description">Advancing equity for women and girls through research, education, and advocacy.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Additional Resources</h2>
+            
+            <h3>Humanities & Career Pathways</h3>
+            <div class="resource-list">
+                <div class="resource-item">
+                    <a href="https://careernetwork.mla.org/" target="_blank">MLA Career Network</a>
+                    <p class="description">Modern Language Association resources for humanities careers inside and outside academia.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.versatilephd.com/" target="_blank">Versatile PhD</a>
+                    <p class="description">Career planning resource for graduate students and PhDs exploring non-academic careers.</p>
+                </div>
+                <div class="resource-item">
+                    <a href="https://www.imaginephd.com/" target="_blank">ImaginePhD</a>
+                    <p class="description">Career exploration and planning tool for humanities and social sciences graduate students.</p>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Constellation Hub | University of Central Florida</p>
+        </footer>
+    </div>
+
+    <script>
+        let stars = [];
+        let connections = [];
+        let numStars = 150;
+        let mouseInfluence = 80;
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+            
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: random(width),
+                    y: random(height),
+                    z: random(1, 3),
+                    vx: random(-0.3, 0.3),
+                    vy: random(-0.3, 0.3),
+                    brightness: random(150, 255),
+                    baseX: 0,
+                    baseY: 0
+                });
+                stars[i].baseX = stars[i].x;
+                stars[i].baseY = stars[i].y;
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                for (let j = i + 1; j < numStars; j++) {
+                    let d = dist(stars[i].x, stars[i].y, stars[j].x, stars[j].y);
+                    if (d < 150 && random(1) > 0.95) {
+                        connections.push({i: i, j: j});
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            background(0, 0, 10, 25);
+            
+            stroke(102, 126, 234, 30);
+            strokeWeight(0.5);
+            for (let conn of connections) {
+                let s1 = stars[conn.i];
+                let s2 = stars[conn.j];
+                let d = dist(s1.x, s1.y, s2.x, s2.y);
+                if (d < 180) {
+                    let alpha = map(d, 0, 180, 40, 0);
+                    stroke(102, 126, 234, alpha);
+                    line(s1.x, s1.y, s2.x, s2.y);
+                }
+            }
+            
+            noStroke();
+            for (let star of stars) {
+                let dx = star.x - mouseX;
+                let dy = star.y - mouseY;
+                let distance = sqrt(dx * dx + dy * dy);
+                
+                if (distance < mouseInfluence) {
+                    let force = (mouseInfluence - distance) / mouseInfluence;
+                    star.x += dx * force * 0.5;
+                    star.y += dy * force * 0.5;
+                }
+                
+                star.x += (star.baseX - star.x) * 0.02;
+                star.y += (star.baseY - star.y) * 0.02;
+                
+                let twinkle = sin(frameCount * 0.05 + star.x) * 20;
+                fill(star.brightness + twinkle, star.brightness + twinkle, 255, 200);
+                
+                let size = star.z;
+                ellipse(star.x, star.y, size, size);
+                
+                if (star.z > 2) {
+                    fill(102, 126, 234, 30);
+                    ellipse(star.x, star.y, size * 3, size * 3);
+                }
+                
+                star.baseX += star.vx;
+                star.baseY += star.vy;
+                
+                if (star.baseX < 0) star.baseX = width;
+                if (star.baseX > width) star.baseX = 0;
+                if (star.baseY < 0) star.baseY = height;
+                if (star.baseY > height) star.baseY = 0;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            for (let star of stars) {
+                star.baseX = star.x;
+                star.baseY = star.y;
+            }
+        }
+    </script>
+</body>
+</html>
