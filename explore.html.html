@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore - Constellation Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            cursor: crosshair;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 20px 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+
+        nav a:hover {
+            color: #9fa8da;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 300px;
+            z-index: 50;
+        }
+
+        .info-panel h2 {
+            font-size: 1.5rem;
+            color: #b8b8d4;
+            margin-bottom: 15px;
+        }
+
+        .info-panel p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(15, 15, 30, 0.98);
+            border: 2px solid rgba(102, 126, 234, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            max-width: 250px;
+        }
+
+        .tooltip.visible {
+            display: block;
+        }
+
+        .tooltip .title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #9fa8da;
+            margin-bottom: 5px;
+        }
+
+        .tooltip .author {
+            font-size: 0.9rem;
+            color: #b8b8d4;
+            font-style: italic;
+        }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 280px;
+            z-index: 50;
+        }
+
+        .legend h3 {
+            font-size: 1.2rem;
+            color: #b8b8d4;
+            margin-bottom: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            nav a {
+                font-size: 0.95rem;
+            }
+
+            .info-panel {
+                top: 80px;
+                left: 10px;
+                max-width: 250px;
+                padding: 15px;
+            }
+
+            .legend {
+                bottom: 10px;
+                right: 10px;
+                max-width: 200px;
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="explore.html">Explore</a></li>
+            <li><a href="stories.html">Stories</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </nav>
+
+    <div class="info-panel">
+        <h2>Explore the Constellation</h2>
+        <p>Hover over stars to see narrative titles. Click to read the full story. Connected stars represent related narratives—similar journeys, shared industries, or common challenges overcome.</p>
+    </div>
+
+    <div class="legend">
+        <h3>Constellations</h3>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #667eea;"></div>
+            <span>Technology & Innovation</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f093fb;"></div>
+            <span>Arts & Media</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4facfe;"></div>
+            <span>Academia & Research</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #43e97b;"></div>
+            <span>Business & Entrepreneurship</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #fa709a;"></div>
+            <span>Social Impact & Advocacy</span>
+        </div>
+    </div>
+
+    <div class="tooltip" id="tooltip">
+        <div class="title" id="tooltip-title"></div>
+        <div class="author" id="tooltip-author"></div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script>
+        // Narrative data - organized by constellation/theme
+        const narratives = [
+            // Technology & Innovation
+            { title: "[Breaking into Tech Leadership]", author: "[Author Name 1]", url: "narratives/tech-leader-1.html", constellation: 0, x: 0, y: 0 },
+            { title: "[From Humanities to Software Engineering]", author: "[Author Name 2]", url: "narratives/tech-leader-2.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Building Inclusive Tech Teams]", author: "[Author Name 3]", url: "narratives/tech-leader-3.html", constellation: 0, x: 0, y: 0 },
+            { title: "[UX Design and Digital Storytelling]", author: "[Author Name 4]", url: "narratives/tech-leader-4.html", constellation: 0, x: 0, y: 0 },
+            
+            // Arts & Media
+            { title: "[Publishing in the Digital Age]", author: "[Author Name 5]", url: "narratives/arts-media-1.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Documentary Filmmaking as Activism]", author: "[Author Name 6]", url: "narratives/arts-media-2.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Museum Curation and Community Engagement]", author: "[Author Name 7]", url: "narratives/arts-media-3.html", constellation: 1, x: 0, y: 0 },
+            
+            // Academia & Research
+            { title: "[Navigating Academic Leadership]", author: "[Author Name 8]", url: "narratives/academia-1.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Interdisciplinary Research Pathways]", author: "[Author Name 9]", url: "narratives/academia-2.html", constellation: 2, x: 0, y: 0 },
+            { title: "[From PhD to Dean]", author: "[Author Name 10]", url: "narratives/academia-3.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Digital Humanities Research]", author: "[Author Name 11]", url: "narratives/academia-4.html", constellation: 2, x: 0, y: 0 },
+            
+            // Business & Entrepreneurship
+            { title: "[Launching a Social Enterprise]", author: "[Author Name 12]", url: "narratives/business-1.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Consultant to CEO]", author: "[Author Name 13]", url: "narratives/business-2.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Marketing Strategy and Brand Building]", author: "[Author Name 14]", url: "narratives/business-3.html", constellation: 3, x: 0, y: 0 },
+            
+            // Social Impact & Advocacy
+            { title: "[Policy Work and Social Change]", author: "[Author Name 15]", url: "narratives/advocacy-1.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Nonprofit Leadership Journey]", author: "[Author Name 16]", url: "narratives/advocacy-2.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Community Organizing and Activism]", author: "[Author Name 17]", url: "narratives/advocacy-3.html", constellation: 4, x: 0, y: 0 },
+        ];
+
+        // Constellation colors
+        const constellationColors = [
+            [102, 126, 234],  // Technology - blue
+            [240, 147, 251],  // Arts - pink
+            [79, 172, 254],   // Academia - light blue
+            [67, 233, 123],   // Business - green
+            [250, 112, 154]   // Social Impact - rose
+        ];
+
+        let hoveredStar = null;
+        const starSize = 8;
+        const hoverDistance = 15;
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+            
+            // Position narratives in constellation clusters
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const clusterRadius = 150;
+            const angleStep = TWO_PI / 5;
+            
+            narratives.forEach((narrative, index) => {
+                const constellation = narrative.constellation;
+                const clusterAngle = constellation * angleStep;
+                const clusterX = centerX + cos(clusterAngle) * 250;
+                const clusterY = centerY + sin(clusterAngle) * 250;
+                
+                // Position within cluster
+                const localAngle = random(TWO_PI);
+                const localRadius = random(50, clusterRadius);
+                
+                narrative.x = clusterX + cos(localAngle) * localRadius;
+                narrative.y = clusterY + sin(localAngle) * localRadius;
+            });
+        }
+
+        function draw() {
+            background(0, 0, 10);
+            
+            // Draw connections within constellations
+            stroke(255, 255, 255, 20);
+            strokeWeight(1);
+            for (let i = 0; i < narratives.length; i++) {
+                for (let j = i + 1; j < narratives.length; j++) {
+                    if (narratives[i].constellation === narratives[j].constellation) {
+                        const d = dist(narratives[i].x, narratives[i].y, narratives[j].x, narratives[j].y);
+                        if (d < 200) {
+                            const alpha = map(d, 0, 200, 40, 0);
+                            const color = constellationColors[narratives[i].constellation];
+                            stroke(color[0], color[1], color[2], alpha);
+                            line(narratives[i].x, narratives[i].y, narratives[j].x, narratives[j].y);
+                        }
+                    }
+                }
+            }
+            
+            // Check for hover
+            hoveredStar = null;
+            for (let narrative of narratives) {
+                const d = dist(mouseX, mouseY, narrative.x, narrative.y);
+                if (d < hoverDistance) {
+                    hoveredStar = narrative;
+                    break;
+                }
+            }
+            
+            // Draw stars
+            noStroke();
+            for (let narrative of narratives) {
+                const isHovered = hoveredStar === narrative;
+                const color = constellationColors[narrative.constellation];
+                
+                // Glow effect
+                if (isHovered) {
+                    fill(color[0], color[1], color[2], 60);
+                    ellipse(narrative.x, narrative.y, starSize * 4, starSize * 4);
+                }
+                
+                // Star
+                fill(color[0], color[1], color[2], isHovered ? 255 : 200);
+                ellipse(narrative.x, narrative.y, isHovered ? starSize * 1.5 : starSize, isHovered ? starSize * 1.5 : starSize);
+                
+                // Twinkle effect
+                if (!isHovered && frameCount % 60 < 30 && random(1) > 0.98) {
+                    fill(255, 255, 255, 150);
+                    ellipse(narrative.x, narrative.y, starSize * 1.2, starSize * 1.2);
+                }
+            }
+            
+            // Update tooltip
+            const tooltip = document.getElementById('tooltip');
+            if (hoveredStar) {
+                document.getElementById('tooltip-title').textContent = hoveredStar.title;
+                document.getElementById('tooltip-author').textContent = hoveredStar.author;
+                tooltip.classList.add('visible');
+                tooltip.style.left = (mouseX + 20) + 'px';
+                tooltip.style.top = (mouseY - 40) + 'px';
+                cursor('pointer');
+            } else {
+                tooltip.classList.remove('visible');
+                cursor('crosshair');
+            }
+        }
+
+        function mouseClicked() {
+            if (hoveredStar) {
+                window.location.href = hoveredStar.url;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            // Reposition stars proportionally
+            const scaleX = windowWidth / width;
+            const scaleY = windowHeight / height;
+            narratives.forEach(narrative => {
+                narrative.x *= scaleX;
+                narrative.y *= scaleY;
+            });
+        }
+    </script>
+</body>
+</html>

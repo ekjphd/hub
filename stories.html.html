@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stories - Constellation Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 20px 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+
+        nav a:hover {
+            color: #9fa8da;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 140px 20px 80px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-container {
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        #searchInput {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.1rem;
+            background: rgba(25, 25, 45, 0.8);
+            border: 2px solid rgba(102, 126, 234, 0.4);
+            border-radius: 10px;
+            color: #f0f0f0;
+            transition: border-color 0.3s ease;
+        }
+
+        #searchInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        #searchInput::placeholder {
+            color: #888;
+        }
+
+        .category-section {
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+        }
+
+        h2 {
+            font-size: 1.8rem;
+            font-weight: 400;
+            margin-bottom: 25px;
+            color: #b8b8d4;
+            border-bottom: 2px solid rgba(102, 126, 234, 0.3);
+            padding-bottom: 10px;
+        }
+
+        .story-card {
+            background: rgba(25, 25, 45, 0.7);
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .story-card:hover {
+            background: rgba(35, 35, 55, 0.9);
+            transform: translateX(5px);
+        }
+
+        .story-card.hidden {
+            display: none;
+        }
+
+        .story-card h3 {
+            font-size: 1.4rem;
+            color: #9fa8da;
+            margin-bottom: 8px;
+        }
+
+        .story-card .author {
+            font-size: 1rem;
+            color: #b8b8d4;
+            font-style: italic;
+            margin-bottom: 12px;
+        }
+
+        .story-card .summary {
+            color: #e0e0e0;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+
+        .story-card a {
+            display: inline-block;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .story-card a:hover {
+            color: #9fa8da;
+        }
+
+        .no-results {
+            text-align: center;
+            color: #9fa8da;
+            padding: 40px;
+            font-size: 1.1rem;
+            display: none;
+        }
+
+        .no-results.visible {
+            display: block;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            nav a {
+                font-size: 0.95rem;
+            }
+
+            .content {
+                padding: 120px 20px 80px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .category-section {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="explore.html">Explore</a></li>
+            <li><a href="stories.html">Stories</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </nav>
+
+    <div id="canvas-container"></div>
+
+    <div class="content">
+        <header>
+            <h1>STORIES</h1>
+        </header>
+
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="Search stories by name, title, industry, or keyword...">
+        </div>
+
+        <div class="no-results" id="noResults">No stories found matching your search.</div>
+
+        <div class="category-section" data-category="technology">
+            <h2>Technology & Innovation</h2>
+            
+            <div class="story-card" data-keywords="technology leadership engineering software">
+                <h3>[Breaking into Tech Leadership]</h3>
+                <p class="author">by [Author Name 1]</p>
+                <p class="summary">Journey from English major to senior engineering manager at a Fortune 500 tech company.</p>
+                <a href="narratives/tech-leader-1.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="technology humanities software engineering career transition">
+                <h3>[From Humanities to Software Engineering]</h3>
+                <p class="author">by [Author Name 2]</p>
+                <p class="summary">How studying literature prepared her for a career building user-centered applications.</p>
+                <a href="narratives/tech-leader-2.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="technology diversity inclusion team building management">
+                <h3>[Building Inclusive Tech Teams]</h3>
+                <p class="author">by [Author Name 3]</p>
+                <p class="summary">Creating workplace cultures where diverse voices thrive in the technology sector.</p>
+                <a href="narratives/tech-leader-3.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="technology design UX storytelling digital">
+                <h3>[UX Design and Digital Storytelling]</h3>
+                <p class="author">by [Author Name 4]</p>
+                <p class="summary">Leveraging narrative skills to create compelling user experiences in tech products.</p>
+                <a href="narratives/tech-leader-4.html">Read Full Story →</a>
+            </div>
+        </div>
+
+        <div class="category-section" data-category="arts-media">
+            <h2>Arts & Media</h2>
+            
+            <div class="story-card" data-keywords="publishing media digital editor writing">
+                <h3>[Publishing in the Digital Age]</h3>
+                <p class="author">by [Author Name 5]</p>
+                <p class="summary">Navigating the transformation of traditional publishing into multimedia storytelling platforms.</p>
+                <a href="narratives/arts-media-1.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="film documentary activism media social justice">
+                <h3>[Documentary Filmmaking as Activism]</h3>
+                <p class="author">by [Author Name 6]</p>
+                <p class="summary">Using visual storytelling to drive social change and amplify marginalized voices.</p>
+                <a href="narratives/arts-media-2.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="museum curator community arts culture">
+                <h3>[Museum Curation and Community Engagement]</h3>
+                <p class="author">by [Author Name 7]</p>
+                <p class="summary">Reimagining cultural institutions as spaces for inclusive dialogue and shared heritage.</p>
+                <a href="narratives/arts-media-3.html">Read Full Story →</a>
+            </div>
+        </div>
+
+        <div class="category-section" data-category="academia">
+            <h2>Academia & Research</h2>
+            
+            <div class="story-card" data-keywords="academia leadership university administration higher education">
+                <h3>[Navigating Academic Leadership]</h3>
+                <p class="author">by [Author Name 8]</p>
+                <p class="summary">Rising through the ranks from assistant professor to department chair in a male-dominated field.</p>
+                <a href="narratives/academia-1.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="academia research interdisciplinary collaboration scholarship">
+                <h3>[Interdisciplinary Research Pathways]</h3>
+                <p class="author">by [Author Name 9]</p>
+                <p class="summary">Building bridges between humanities and STEM fields through collaborative research.</p>
+                <a href="narratives/academia-2.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="academia leadership dean administration career">
+                <h3>[From PhD to Dean]</h3>
+                <p class="author">by [Author Name 10]</p>
+                <p class="summary">Lessons learned climbing the academic ladder while maintaining research and teaching passions.</p>
+                <a href="narratives/academia-3.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="academia digital humanities research technology scholarship">
+                <h3>[Digital Humanities Research]</h3>
+                <p class="author">by [Author Name 11]</p>
+                <p class="summary">Pioneering new methodologies at the intersection of technology and humanistic inquiry.</p>
+                <a href="narratives/academia-4.html">Read Full Story →</a>
+            </div>
+        </div>
+
+        <div class="category-section" data-category="business">
+            <h2>Business & Entrepreneurship</h2>
+            
+            <div class="story-card" data-keywords="business entrepreneurship social enterprise nonprofit startup">
+                <h3>[Launching a Social Enterprise]</h3>
+                <p class="author">by [Author Name 12]</p>
+                <p class="summary">Turning a passion for social justice into a sustainable business model that creates community impact.</p>
+                <a href="narratives/business-1.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="business consulting CEO leadership entrepreneurship">
+                <h3>[Consultant to CEO]</h3>
+                <p class="author">by [Author Name 13]</p>
+                <p class="summary">Leveraging critical thinking skills to build and lead a successful consulting firm.</p>
+                <a href="narratives/business-2.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="business marketing strategy branding communications">
+                <h3>[Marketing Strategy and Brand Building]</h3>
+                <p class="author">by [Author Name 14]</p>
+                <p class="summary">How understanding narrative and audience transformed her approach to corporate marketing.</p>
+                <a href="narratives/business-3.html">Read Full Story →</a>
+            </div>
+        </div>
+
+        <div class="category-section" data-category="advocacy">
+            <h2>Social Impact & Advocacy</h2>
+            
+            <div class="story-card" data-keywords="policy government advocacy social change public service">
+                <h3>[Policy Work and Social Change]</h3>
+                <p class="author">by [Author Name 15]</p>
+                <p class="summary">Using research and rhetoric skills to influence legislation and drive systemic reform.</p>
+                <a href="narratives/advocacy-1.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="nonprofit leadership community service social impact">
+                <h3>[Nonprofit Leadership Journey]</h3>
+                <p class="author">by [Author Name 16]</p>
+                <p class="summary">Building and leading an organization dedicated to educational equity and opportunity.</p>
+                <a href="narratives/advocacy-2.html">Read Full Story →</a>
+            </div>
+
+            <div class="story-card" data-keywords="activism community organizing social justice grassroots">
+                <h3>[Community Organizing and Activism]</h3>
+                <p class="author">by [Author Name 17]</p>
+                <p class="summary">Mobilizing communities for change through strategic communication and relationship building.</p>
+                <a href="narratives/advocacy-3.html">Read Full Story →</a>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Constellation Hub | University of Central Florida</p>
+        </footer>
+    </div>
+
+    <script>
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        const storyCards = document.querySelectorAll('.story-card');
+        const categorySections = document.querySelectorAll('.category-section');
+        const noResults = document.getElementById('noResults');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase().trim();
+            let visibleCount = 0;
+
+            if (searchTerm === '') {
+                // Show all stories and categories
+                storyCards.forEach(card => card.classList.remove('hidden'));
+                categorySections.forEach(section => section.style.display = 'block');
+                noResults.classList.remove('visible');
+                return;
+            }
+
+            storyCards.forEach(card => {
+                const title = card.querySelector('h3').textContent.toLowerCase();
+                const author = card.querySelector('.author').textContent.toLowerCase();
+                const summary = card.querySelector('.summary').textContent.toLowerCase();
+                const keywords = card.getAttribute('data-keywords').toLowerCase();
+                
+                const searchableText = title + ' ' + author + ' ' + summary + ' ' + keywords;
+                
+                if (searchableText.includes(searchTerm)) {
+                    card.classList.remove('hidden');
+                    visibleCount++;
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            // Hide/show category sections based on visible cards
+            categorySections.forEach(section => {
+                const visibleCards = section.querySelectorAll('.story-card:not(.hidden)');
+                if (visibleCards.length === 0) {
+                    section.style.display = 'none';
+                } else {
+                    section.style.display = 'block';
+                }
+            });
+
+            // Show/hide no results message
+            if (visibleCount === 0) {
+                noResults.classList.add('visible');
+            } else {
+                noResults.classList.remove('visible');
+            }
+        });
+
+        // Background animation
+        let stars = [];
+        let connections = [];
+        let numStars = 150;
+        let mouseInfluence = 80;
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+            
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: random(width),
+                    y: random(height),
+                    z: random(1, 3),
+                    vx: random(-0.3, 0.3),
+                    vy: random(-0.3, 0.3),
+                    brightness: random(150, 255),
+                    baseX: 0,
+                    baseY: 0
+                });
+                stars[i].baseX = stars[i].x;
+                stars[i].baseY = stars[i].y;
+            }
+            
+            for (let i = 0; i < numStars; i++) {
+                for (let j = i + 1; j < numStars; j++) {
+                    let d = dist(stars[i].x, stars[i].y, stars[j].x, stars[j].y);
+                    if (d < 150 && random(1) > 0.95) {
+                        connections.push({i: i, j: j});
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            background(0, 0, 10, 25);
+            
+            stroke(102, 126, 234, 30);
+            strokeWeight(0.5);
+            for (let conn of connections) {
+                let s1 = stars[conn.i];
+                let s2 = stars[conn.j];
+                let d = dist(s1.x, s1.y, s2.x, s2.y);
+                if (d < 180) {
+                    let alpha = map(d, 0, 180, 40, 0);
+                    stroke(102, 126, 234, alpha);
+                    line(s1.x, s1.y, s2.x, s2.y);
+                }
+            }
+            
+            noStroke();
+            for (let star of stars) {
+                let dx = star.x - mouseX;
+                let dy = star.y - mouseY;
+                let distance = sqrt(dx * dx + dy * dy);
+                
+                if (distance < mouseInfluence) {
+                    let force = (mouseInfluence - distance) / mouseInfluence;
+                    star.x += dx * force * 0.5;
+                    star.y += dy * force * 0.5;
+                }
+                
+                star.x += (star.baseX - star.x) * 0.02;
+                star.y += (star.baseY - star.y) * 0.02;
+                
+                let twinkle = sin(frameCount * 0.05 + star.x) * 20;
+                fill(star.brightness + twinkle, star.brightness + twinkle, 255, 200);
+                
+                let size = star.z;
+                ellipse(star.x, star.y, size, size);
+                
+                if (star.z > 2) {
+                    fill(102, 126, 234, 30);
+                    ellipse(star.x, star.y, size * 3, size * 3);
+                }
+                
+                star.baseX += star.vx;
+                star.baseY += star.vy;
+                
+                if (star.baseX < 0) star.baseX = width;
+                if (star.baseX > width) star.baseX = 0;
+                if (star.baseY < 0) star.baseY = height;
+                if (star.baseY > height) star.baseY = 0;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            for (let star of stars) {
+                star.baseX = star.x;
+                star.baseY = star.y;
+            }
+        }
+    </script>
+</body>
+</html>

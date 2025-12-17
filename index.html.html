@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Constellation Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 140px 20px 80px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeIn 1s ease-in;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            font-weight: 300;
+            color: #b8b8d4;
+            letter-spacing: 1px;
+        }
+
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 20px 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+
+        nav a:hover {
+            color: #9fa8da;
+        }
+
+        section {
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 15px;
+            padding: 40px;
+            margin-bottom: 30px;
+            animation: slideUp 0.8s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        h2 {
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 20px;
+            color: #b8b8d4;
+        }
+
+        p {
+            line-height: 1.8;
+            font-size: 1.1rem;
+            color: #f0f0f0;
+            margin-bottom: 15px;
+        }
+
+        .mission-statement {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #e0e0e0;
+            border-left: 4px solid #667eea;
+            padding-left: 20px;
+            margin: 25px 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            nav a {
+                font-size: 0.95rem;
+            }
+
+            .content {
+                padding: 120px 20px 80px;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tagline {
+                font-size: 1.1rem;
+            }
+
+            section {
+                padding: 30px 25px;
+            }
+
+            h2 {
+                font-size: 1.6rem;
+            }
+
+            p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="explore.html">Explore</a></li>
+            <li><a href="stories.html">Stories</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
+    </nav>
+
+    <div id="canvas-container"></div>
+
+    <div class="content">
+        <header>
+            <h1>CONSTELLATION HUB</h1>
+            <p class="tagline">Amplifying Narratives Across Space and Time</p>
+        </header>
+
+        <section>
+            <h2>Our Mission</h2>
+            <p class="mission-statement">
+                Creating a digital and physical hub for the collection, celebration, and preservation of humanities-focused narratives by women and gender-diverse leaders across industries.
+            </p>
+        </section>
+
+        <section>
+            <h2>The Vision</h2>
+            <p>
+                The Constellation Hub showcases the powerful contributions of women and gender-diverse professionals with humanities backgrounds who are leaders in their fields. Through compelling digital storytelling, strategic industry partnerships, and targeted skills development, this initiative creates lasting cultural change while directly supporting women humanities students in accessing impactful careers.
+            </p>
+            <p>
+                This addresses the persistent myth that humanities education is incompatible with corporate success—a misconception that disproportionately affects women who are overrepresented in these majors.
+            </p>
+        </section>
+
+        <section>
+            <h2>What We Do</h2>
+            <p>
+                Through interviews, digital narratives, and collaborative projects, we connect students with professionals across industries to learn about their journeys, challenges, and triumphs. Each story becomes a star in our constellation—individual yet interconnected, forming a map for future leaders to navigate their own paths.
+            </p>
+        </section>
+
+        <footer>
+            <p>&copy; 2025 Constellation Hub | University of Central Florida</p>
+        </footer>
+    </div>
+
+    <script>
+        let stars = [];
+        let connections = [];
+        let numStars = 150;
+        let mouseInfluence = 80;
+
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+            
+            // Create stars
+            for (let i = 0; i < numStars; i++) {
+                stars.push({
+                    x: random(width),
+                    y: random(height),
+                    z: random(1, 3),
+                    vx: random(-0.3, 0.3),
+                    vy: random(-0.3, 0.3),
+                    brightness: random(150, 255),
+                    baseX: 0,
+                    baseY: 0
+                });
+                stars[i].baseX = stars[i].x;
+                stars[i].baseY = stars[i].y;
+            }
+            
+            // Create some connections
+            for (let i = 0; i < numStars; i++) {
+                for (let j = i + 1; j < numStars; j++) {
+                    let d = dist(stars[i].x, stars[i].y, stars[j].x, stars[j].y);
+                    if (d < 150 && random(1) > 0.95) {
+                        connections.push({i: i, j: j});
+                    }
+                }
+            }
+        }
+
+        function draw() {
+            background(0, 0, 10, 25);
+            
+            // Draw connections
+            stroke(102, 126, 234, 30);
+            strokeWeight(0.5);
+            for (let conn of connections) {
+                let s1 = stars[conn.i];
+                let s2 = stars[conn.j];
+                let d = dist(s1.x, s1.y, s2.x, s2.y);
+                if (d < 180) {
+                    let alpha = map(d, 0, 180, 40, 0);
+                    stroke(102, 126, 234, alpha);
+                    line(s1.x, s1.y, s2.x, s2.y);
+                }
+            }
+            
+            // Draw and update stars
+            noStroke();
+            for (let star of stars) {
+                // Mouse interaction - stars move away from cursor
+                let dx = star.x - mouseX;
+                let dy = star.y - mouseY;
+                let distance = sqrt(dx * dx + dy * dy);
+                
+                if (distance < mouseInfluence) {
+                    let force = (mouseInfluence - distance) / mouseInfluence;
+                    star.x += dx * force * 0.5;
+                    star.y += dy * force * 0.5;
+                }
+                
+                // Gradually return to base position
+                star.x += (star.baseX - star.x) * 0.02;
+                star.y += (star.baseY - star.y) * 0.02;
+                
+                // Twinkling effect
+                let twinkle = sin(frameCount * 0.05 + star.x) * 20;
+                fill(star.brightness + twinkle, star.brightness + twinkle, 255, 200);
+                
+                let size = star.z;
+                ellipse(star.x, star.y, size, size);
+                
+                // Add glow for larger stars
+                if (star.z > 2) {
+                    fill(102, 126, 234, 30);
+                    ellipse(star.x, star.y, size * 3, size * 3);
+                }
+                
+                // Move base position slowly
+                star.baseX += star.vx;
+                star.baseY += star.vy;
+                
+                // Wrap around edges
+                if (star.baseX < 0) star.baseX = width;
+                if (star.baseX > width) star.baseX = 0;
+                if (star.baseY < 0) star.baseY = height;
+                if (star.baseY > height) star.baseY = 0;
+            }
+        }
+
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+            // Update base positions when window resizes
+            for (let star of stars) {
+                star.baseX = star.x;
+                star.baseY = star.y;
+            }
+        }
+    </script>
+</body>
+</html>
