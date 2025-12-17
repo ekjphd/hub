@@ -1,364 +1,468 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Explore – Constellation Hub</title>
-  <style>
-    :root{
-      --bg-deep:#070b1a;
-      --bg-mid:#0a1226;
-      --bg-top:#0e1733;
-      --text:#dde7ff;
-      --muted:#9aa9c9;
-      --accent:#5fc9f3;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%;}
-    body{
-      margin:0;
-      color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Helvetica,Arial,sans-serif;
-      background:radial-gradient(1200px 600px at 20% 20%, var(--bg-top), var(--bg-mid) 50%, var(--bg-deep));
-      overflow:hidden; /* canvas handles scroll/pan */
-    }
-    header{
-      position:fixed; inset:0 0 auto 0; z-index:10;
-      display:flex; align-items:center; gap:.75rem;
-      padding:.75rem 1rem; backdrop-filter:saturate(1.2) blur(6px);
-      background:linear-gradient(180deg, rgba(8,14,30,.75), rgba(8,14,30,.35));
-      border-bottom:1px solid rgba(255,255,255,.08);
-    }
-    header h1{font-size:1rem; font-weight:600; margin:0 .5rem 0 0; color:#cde0ff}
-    nav ul{list-style:none; margin:0; padding:0; display:flex; flex-wrap:wrap; gap:.75rem}
-    nav a{color:var(--muted); text-decoration:none; padding:.35rem .5rem; border-radius:.5rem}
-    nav a:hover{color:#fff; background:rgba(255,255,255,.08)}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Explore - Constellation Hub</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    main{height:100vh; width:100vw}
-    canvas{width:100vw; height:100vh; display:block; cursor:grab}
-    canvas.dragging{cursor:grabbing}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+            background: #000;
+            color: #fff;
+        }
 
-    #legend{
-      position:fixed; right:12px; bottom:12px; z-index:9;
-      background:rgba(10,14,30,.6); border:1px solid rgba(255,255,255,.08);
-      border-radius:.75rem; padding:.5rem .75rem; color:var(--muted);
-      font-size:.85rem; max-width:min(26rem, 42vw);
-    }
-    #legend .row{display:flex; align-items:center; gap:.5rem; margin:.2rem 0}
-    .swatch{width:.75rem; height:.75rem; border-radius:999px; display:inline-block}
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            cursor: grab;
+        }
+        
+        #canvas-container:active {
+            cursor: grabbing;
+        }
 
-    #tooltip{
-      position:fixed; z-index:11; pointer-events:none;
-      background:linear-gradient(180deg, rgba(24,32,56,.85), rgba(16,22,40,.85));
-      border:1px solid rgba(255,255,255,.12); color:#eaf1ff;
-      padding:.6rem .7rem; border-radius:.6rem; min-width:200px; max-width:360px;
-      box-shadow:0 8px 24px rgba(0,0,0,.35);
-      transform:translate(-50%, calc(-100% - 14px));
-      opacity:0; transition:opacity .15s ease;
-    }
-    #tooltip.visible{opacity:1}
-    #tooltip h3{margin:.1rem 0 .2rem; font-size:1rem}
-    #tooltip p{margin:.25rem 0; font-size:.9rem; color:#cfe0ff}
-    #tooltip .group{font-size:.8rem; color:#a9b6d4}
-    #tooltip .author{font-style:italic}
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(10, 10, 20, 0.95);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(102, 126, 234, 0.3);
+            padding: 20px 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+        }
 
-    /* Subtle twinkle for foreground stars */
-    @keyframes twinkle { 0%{opacity:.85} 50%{opacity:1} 100%{opacity:.85} }
-  </style>
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 300;
+            letter-spacing: 1px;
+            transition: color 0.3s ease;
+            padding: 5px 10px;
+        }
+
+        nav a:hover {
+            color: #9fa8da;
+        }
+
+        .info-panel {
+            position: fixed;
+            top: 100px;
+            left: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 300px;
+            z-index: 50;
+        }
+
+        .info-panel h2 {
+            font-size: 1.5rem;
+            color: #b8b8d4;
+            margin-bottom: 15px;
+        }
+
+        .info-panel p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: #e0e0e0;
+        }
+
+        .tooltip {
+            position: fixed;
+            background: rgba(15, 15, 30, 0.98);
+            border: 2px solid rgba(102, 126, 234, 0.6);
+            border-radius: 8px;
+            padding: 15px;
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            max-width: 250px;
+        }
+
+        .tooltip.visible {
+            display: block;
+        }
+
+        .tooltip .title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: #9fa8da;
+            margin-bottom: 5px;
+        }
+
+        .tooltip .author {
+            font-size: 0.9rem;
+            color: #b8b8d4;
+            font-style: italic;
+        }
+
+        .legend {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(15, 15, 30, 0.95);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 10px;
+            padding: 20px;
+            max-width: 280px;
+            z-index: 50;
+        }
+
+        .legend h3 {
+            font-size: 1.2rem;
+            color: #b8b8d4;
+            margin-bottom: 12px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 20px;
+                padding: 0 20px;
+            }
+
+            nav a {
+                font-size: 0.95rem;
+            }
+
+            .info-panel {
+                top: 80px;
+                left: 10px;
+                max-width: 250px;
+                padding: 15px;
+            }
+
+            .legend {
+                bottom: 10px;
+                right: 10px;
+                max-width: 200px;
+                padding: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Explore – Constellation Hub</h1>
     <nav>
-      <ul>
-        <li>index.htmlHome</a></li>
-        <li>explore.htmlExplore</a></li>
-        <li>stories.htmlStories</a></li>
-        <li>resources.htmlResources</a></li>
-        <li>events.htmlEvents</a></li>
-        <li>about.htmlAbout Us</a></li>
-      </ul>
+        <ul>
+            <li><a href="index.html">Home</a></li>
+            <li><a href="explore.html">Explore</a></li>
+            <li><a href="stories.html">Stories</a></li>
+            <li><a href="resources.html">Resources</a></li>
+            <li><a href="events.html">Events</a></li>
+            <li><a href="about.html">About Us</a></li>
+        </ul>
     </nav>
-  </header>
-  <main>
-    <canvas id="sky" aria-label="Interactive star map"></canvas>
-    <div id="legend" aria-hidden="true">
-      <div class="row"><span class="swatch" style="background:#5fc9f3"></span> Technology &amp; Innovation</div>
-      <div class="row"><span class="swatch" style="background:#ff8ad1"></span> Arts &amp; Media</div>
-      <div class="row"><span class="swatch" style="background:#ffd166"></span> Academia &amp; Research</div>
-      <div class="row"><span class="swatch" style="background:#95e06c"></span> Business &amp; Entrepreneurship</div>
-      <div class="row"><span class="swatch" style="background:#c0a8ff"></span> Social Impact &amp; Advocacy</div>
+
+    <div class="info-panel">
+        <h2>Explore the Constellation</h2>
+        <p>Hover over stars to see narrative titles. Click to read the full story. Connected stars represent related narratives—similar journeys, shared industries, or common challenges overcome. Drag to explore the space.</p>
     </div>
-    <div id="tooltip" role="status" aria-live="polite" hidden>
-      <h3 id="tt-title">[Title]</h3>
-      <p class="author" id="tt-author">By [Author]</p>
-      <p id="tt-summary">Short summary of the narrative</p>
-      <p class="group" id="tt-group">Group</p>
+
+    <div class="legend">
+        <h3>Constellations</h3>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #667eea;"></div>
+            <span>Technology & Innovation</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #f093fb;"></div>
+            <span>Arts & Media</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #4facfe;"></div>
+            <span>Academia & Research</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #43e97b;"></div>
+            <span>Business & Entrepreneurship</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background: #fa709a;"></div>
+            <span>Social Impact & Advocacy</span>
+        </div>
     </div>
-  </main>
 
-  <script>
-    /**
-     * Interactive drifting constellations with click-drag panning.
-     * - Hover a star to view: [Title], [Author], "Short summary of the narrative".
-     * - Click a star to open its link in a new tab (with a unique cache-busting query so it's a fresh tab each time).
-     */
-    const DPR = Math.max(1, window.devicePixelRatio || 1);
-    const canvas = document.getElementById('sky');
-    const ctx = canvas.getContext('2d');
-    const tooltip = document.getElementById('tooltip');
-    const ttTitle = document.getElementById('tt-title');
-    const ttAuthor = document.getElementById('tt-author');
-    const ttSummary = document.getElementById('tt-summary');
-    const ttGroup = document.getElementById('tt-group');
+    <div class="tooltip" id="tooltip">
+        <div class="title" id="tooltip-title"></div>
+        <div class="author" id="tooltip-author"></div>
+    </div>
 
-    let W = 0, H = 0;
-    function resize(){
-      W = canvas.clientWidth;
-      H = canvas.clientHeight;
-      canvas.width = Math.floor(W * DPR);
-      canvas.height = Math.floor(H * DPR);
-      ctx.setTransform(DPR,0,0,DPR,0,0);
-    }
-    resize();
-    addEventListener('resize', resize);
+    <div id="canvas-container"></div>
 
-    const camera = {x:0, y:0}; // world offset (pixels)
+    <script>
+        // Narrative data - organized by constellation/theme
+        const narratives = [
+            // Technology & Innovation (Constellation 0)
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-1.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-2.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-3.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-4.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-5.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-6.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-7.html", constellation: 0, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/tech-8.html", constellation: 0, x: 0, y: 0 },
+            
+            // Arts & Media (Constellation 1)
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/arts-1.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/arts-2.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/arts-3.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/arts-4.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/arts-5.html", constellation: 1, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/arts-6.html", constellation: 1, x: 0, y: 0 },
+            
+            // Academia & Research (Constellation 2)
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-1.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-2.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-3.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-4.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-5.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-6.html", constellation: 2, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/academia-7.html", constellation: 2, x: 0, y: 0 },
+            
+            // Business & Entrepreneurship (Constellation 3)
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/business-1.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/business-2.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/business-3.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/business-4.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/business-5.html", constellation: 3, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/business-6.html", constellation: 3, x: 0, y: 0 },
+            
+            // Social Impact & Advocacy (Constellation 4)
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-1.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-2.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-3.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-4.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-5.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-6.html", constellation: 4, x: 0, y: 0 },
+            { title: "[Title]", author: "[Author Name]", summary: "Short summary of the narrative", url: "narratives/advocacy-7.html", constellation: 4, x: 0, y: 0 },
+        ];
 
-    const groups = [
-      { name:'Technology & Innovation',  color:'#5fc9f3', center:{x:-600,y:-200} },
-      { name:'Arts & Media',             color:'#ff8ad1', center:{x: 400,y:-400} },
-      { name:'Academia & Research',      color:'#ffd166', center:{x:-500,y: 300} },
-      { name:'Business & Entrepreneurship', color:'#95e06c', center:{x: 450,y: 250} },
-      { name:'Social Impact & Advocacy', color:'#c0a8ff', center:{x:  50,y:   0} }
-    ];
+        // Constellation colors
+        const constellationColors = [
+            [102, 126, 234],  // Technology - blue
+            [240, 147, 251],  // Arts - pink
+            [79, 172, 254],   // Academia - light blue
+            [67, 233, 123],   // Business - green
+            [250, 112, 154]   // Social Impact - rose
+        ];
 
-    // World bounds for drift wrapping (big area so panning feels roomy)
-    const WORLD = {minX:-3000, maxX:3000, minY:-2200, maxY:2200};
+        let hoveredStar = null;
+        const starSize = 8;
+        const hoverDistance = 15;
+        
+        // Camera/view offset for panning
+        let offsetX = 0;
+        let offsetY = 0;
+        let isDragging = false;
+        let dragStartX = 0;
+        let dragStartY = 0;
+        
+        // Drift animation
+        let driftTime = 0;
 
-    const stars = [];
-    const edges = []; // [i, j] indices into stars
+        function setup() {
+            let canvas = createCanvas(windowWidth, windowHeight);
+            canvas.parent('canvas-container');
+            
+            // Position narratives in constellation clusters with more complex shapes
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const angleStep = TWO_PI / 5;
+            
+            narratives.forEach((narrative, index) => {
+                const constellation = narrative.constellation;
+                const clusterAngle = constellation * angleStep;
+                const clusterX = centerX + cos(clusterAngle) * 300;
+                const clusterY = centerY + sin(clusterAngle) * 300;
+                
+                // Create more interesting constellation patterns
+                const starsInConstellation = narratives.filter(n => n.constellation === constellation);
+                const indexInConstellation = starsInConstellation.indexOf(narrative);
+                const numInConstellation = starsInConstellation.length;
+                
+                // Position stars in more complex patterns (spirals, arcs, clusters)
+                if (numInConstellation <= 4) {
+                    // Small diamond pattern
+                    const localAngle = (indexInConstellation / numInConstellation) * TWO_PI;
+                    narrative.x = clusterX + cos(localAngle) * 80;
+                    narrative.y = clusterY + sin(localAngle) * 80;
+                } else if (numInConstellation <= 6) {
+                    // Hexagonal pattern
+                    const localAngle = (indexInConstellation / numInConstellation) * TWO_PI;
+                    const radius = indexInConstellation % 2 === 0 ? 70 : 120;
+                    narrative.x = clusterX + cos(localAngle) * radius;
+                    narrative.y = clusterY + sin(localAngle) * radius;
+                } else {
+                    // Spiral pattern for larger groups
+                    const spiralAngle = indexInConstellation * 0.8;
+                    const spiralRadius = 50 + (indexInConstellation * 12);
+                    narrative.x = clusterX + cos(spiralAngle) * spiralRadius;
+                    narrative.y = clusterY + sin(spiralAngle) * spiralRadius;
+                }
+            });
+        }
 
-    function randNormal(){ // Box-Muller transform
-      const u = 1 - Math.random();
-      const v = Math.random();
-      return Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
-    }
+        function draw() {
+            background(0, 0, 10);
+            
+            // Update drift animation
+            driftTime += 0.001;
+            
+            // Apply camera offset
+            push();
+            translate(offsetX, offsetY);
+            
+            // Draw connections within constellations
+            stroke(255, 255, 255, 20);
+            strokeWeight(1);
+            for (let i = 0; i < narratives.length; i++) {
+                for (let j = i + 1; j < narratives.length; j++) {
+                    if (narratives[i].constellation === narratives[j].constellation) {
+                        const d = dist(narratives[i].x, narratives[i].y, narratives[j].x, narratives[j].y);
+                        if (d < 250) {
+                            const alpha = map(d, 0, 250, 50, 0);
+                            const color = constellationColors[narratives[i].constellation];
+                            stroke(color[0], color[1], color[2], alpha);
+                            line(narratives[i].x, narratives[i].y, narratives[j].x, narratives[j].y);
+                        }
+                    }
+                }
+            }
+            
+            // Check for hover
+            hoveredStar = null;
+            if (!isDragging) {
+                for (let narrative of narratives) {
+                    // Apply drift offset to star position
+                    const driftOffsetX = sin(driftTime * 2 + narrative.constellation) * 3;
+                    const driftOffsetY = cos(driftTime * 1.5 + narrative.constellation) * 3;
+                    const starX = narrative.x + driftOffsetX;
+                    const starY = narrative.y + driftOffsetY;
+                    
+                    const d = dist(mouseX - offsetX, mouseY - offsetY, starX, starY);
+                    if (d < hoverDistance) {
+                        hoveredStar = narrative;
+                        break;
+                    }
+                }
+            }
+            
+            // Draw stars
+            noStroke();
+            for (let narrative of narratives) {
+                const isHovered = hoveredStar === narrative;
+                const color = constellationColors[narrative.constellation];
+                
+                // Apply drift offset
+                const driftOffsetX = sin(driftTime * 2 + narrative.constellation) * 3;
+                const driftOffsetY = cos(driftTime * 1.5 + narrative.constellation) * 3;
+                const starX = narrative.x + driftOffsetX;
+                const starY = narrative.y + driftOffsetY;
+                
+                // Glow effect
+                if (isHovered) {
+                    fill(color[0], color[1], color[2], 60);
+                    ellipse(starX, starY, starSize * 4, starSize * 4);
+                }
+                
+                // Star
+                fill(color[0], color[1], color[2], isHovered ? 255 : 200);
+                ellipse(starX, starY, isHovered ? starSize * 1.5 : starSize, isHovered ? starSize * 1.5 : starSize);
+                
+                // Twinkle effect
+                if (!isHovered && frameCount % 60 < 30 && random(1) > 0.98) {
+                    fill(255, 255, 255, 150);
+                    ellipse(starX, starY, starSize * 1.2, starSize * 1.2);
+                }
+            }
+            
+            pop();
+            
+            // Update tooltip
+            const tooltip = document.getElementById('tooltip');
+            if (hoveredStar && !isDragging) {
+                document.getElementById('tooltip-title').textContent = hoveredStar.title;
+                document.getElementById('tooltip-author').textContent = hoveredStar.author;
+                tooltip.classList.add('visible');
+                tooltip.style.left = (mouseX + 20) + 'px';
+                tooltip.style.top = (mouseY - 40) + 'px';
+                cursor('pointer');
+            } else {
+                tooltip.classList.remove('visible');
+                if (isDragging) {
+                    cursor('grabbing');
+                } else {
+                    cursor('grab');
+                }
+            }
+        }
 
-    function makeStar(x, y, group, color){
-      const speed = 0.06 + Math.random()*0.08; // gentle drift
-      const angle = Math.random()*Math.PI*2;
-      return {
-        x, y,
-        r: 1.4 + Math.random()*1.8,
-        vx: Math.cos(angle) * speed * (Math.random()<0.5?-1:1),
-        vy: Math.sin(angle) * speed * (Math.random()<0.5?-1:1),
-        group, color,
-        title:'[Title]', author:'[Author]', summary:'Short summary of the narrative',
-        link: make404Link(group.name),
-        twinklePhase: Math.random(),
-      };
-    }
+        function mousePressed() {
+            isDragging = true;
+            dragStartX = mouseX - offsetX;
+            dragStartY = mouseY - offsetY;
+        }
+        
+        function mouseDragged() {
+            if (isDragging) {
+                offsetX = mouseX - dragStartX;
+                offsetY = mouseY - dragStartY;
+            }
+        }
+        
+        function mouseReleased() {
+            isDragging = false;
+        }
 
-    function make404Link(groupName){
-      // Construct a plausible-but-missing URL path so it lands on your site's 404.
-      // Example: stories/technology-innovation/technology-innovation-1234.html
-      const slug = groupName.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
-      const id = String(Math.floor(Math.random()*9000)+1000);
-      return `stories/${slug}/${slug}-${id}.html`;
-    }
+        function mouseClicked() {
+            if (hoveredStar && !isDragging) {
+                window.open(hoveredStar.url, '_blank');
+            }
+        }
 
-    // Create clustered stars per group (more stars, more involved patterns)
-    groups.forEach(g => {
-      const clusterStars = [];
-      const count = 14 + Math.floor(Math.random()*6); // 14–19 stars per group
-      for(let i=0;i<count;i++){
-        const spread = 220 + Math.random()*140; // cluster radius
-        const angle = Math.random()*Math.PI*2;
-        const radius = Math.abs(randNormal()) * (spread/2) + 40;
-        const sx = g.center.x + Math.cos(angle)*radius;
-        const sy = g.center.y + Math.sin(angle)*radius;
-        const s = makeStar(sx, sy, g.name, g.color);
-        stars.push(s);
-        clusterStars.push(stars.length-1);
-      }
-      // Build edges with nearest-neighbor graph + one outer ring
-      // 1) kNN connections for organic mesh
-      clusterStars.forEach((idx, i) => {
-        const a = stars[idx];
-        // find 3 nearest neighbors within the same cluster
-        const neighbors = clusterStars
-          .filter(j => j!==idx)
-          .map(j => ({j, d:dist(a, stars[j])}))
-          .sort((p,q)=>p.d-q.d)
-          .slice(0,3);
-        neighbors.forEach(n => edges.push([idx, n.j]));
-      });
-      // 2) Order by polar angle around center to create a cycle/loop
-      const ordered = clusterStars
-        .map(j => ({j, ang: Math.atan2(stars[j].y - g.center.y, stars[j].x - g.center.x)}))
-        .sort((p,q)=>p.ang - q.ang)
-        .map(p => p.j);
-      for(let k=0;k<ordered.length;k++){
-        const a = ordered[k], b = ordered[(k+1)%ordered.length];
-        edges.push([a,b]);
-      }
-      // 3) A few long chords for extra complexity
-      for(let k=0;k<Math.floor(count/3);k++){
-        const a = ordered[Math.floor(Math.random()*ordered.length)];
-        const b = ordered[Math.floor(Math.random()*ordered.length)];
-        if(a!==b) edges.push([a,b]);
-      }
-    });
-
-    // Background field stars (non-interactive) over the world area
-    const bgStars = [];
-    for(let i=0;i<1200;i++){
-      bgStars.push({
-        x: WORLD.minX + Math.random()*(WORLD.maxX-WORLD.minX),
-        y: WORLD.minY + Math.random()*(WORLD.maxY-WORLD.minY),
-        r: Math.random()<0.85 ? (Math.random()*1.1) : (1.2 + Math.random()*1.2),
-        a: 0.6 + Math.random()*0.4
-      });
-    }
-
-    function dist(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.sqrt(dx*dx+dy*dy); }
-
-    let dragging=false; let last={x:0,y:0};
-
-    function pointerPos(evt){
-      const rect = canvas.getBoundingClientRect();
-      return { x: evt.clientX - rect.left, y: evt.clientY - rect.top };
-    }
-
-    canvas.addEventListener('mousedown', (e)=>{
-      dragging=true; canvas.classList.add('dragging'); last = pointerPos(e);
-      hideTooltip();
-    });
-    window.addEventListener('mouseup', ()=>{ dragging=false; canvas.classList.remove('dragging'); });
-    window.addEventListener('mousemove', (e)=>{
-      const p = pointerPos(e);
-      if(dragging){ camera.x -= (p.x - last.x); camera.y -= (p.y - last.y); last = p; }
-      handleHover(p);
-    });
-    // Touch support (optional)
-    canvas.addEventListener('touchstart',(e)=>{
-      dragging=true; canvas.classList.add('dragging'); last = {x: e.touches[0].clientX, y: e.touches[0].clientY};
-      hideTooltip();
-    },{passive:true});
-    canvas.addEventListener('touchmove',(e)=>{
-      const p = {x: e.touches[0].clientX, y: e.touches[0].clientY};
-      if(dragging){ camera.x -= (p.x - last.x); camera.y -= (p.y - last.y); last = p; }
-    },{passive:true});
-    canvas.addEventListener('touchend',()=>{ dragging=false; canvas.classList.remove('dragging'); });
-
-    canvas.addEventListener('click',(e)=>{
-      const p = pointerPos(e);
-      const hit = pickStar(p);
-      if(hit){
-        // Open in new tab each time with a unique query param so it doesn't reuse the same tab.
-        const url = `${hit.link}?t=${Date.now()}`;
-        window.open(url, '_blank', 'noopener');
-      }
-    });
-
-    function pickStar(p){
-      // Screen -> world: add camera offset and center pivot
-      const world = { x: p.x + camera.x - W/2, y: p.y + camera.y - H/2 };
-      const hitRadius = 8; // pixels
-      for(let i=stars.length-1;i>=0;i--){
-        const s = stars[i];
-        const dx = world.x - s.x, dy = world.y - s.y;
-        if(dx*dx + dy*dy <= hitRadius*hitRadius){ return s; }
-      }
-      return null;
-    }
-
-    function handleHover(p){
-      const s = pickStar(p);
-      if(s){
-        ttTitle.textContent = s.title;
-        ttAuthor.textContent = `By ${s.author}`;
-        ttSummary.textContent = s.summary;
-        ttGroup.textContent = s.group;
-        tooltip.style.left = `${p.x}px`;
-        tooltip.style.top = `${p.y}px`;
-        tooltip.hidden = false;
-        tooltip.classList.add('visible');
-      } else {
-        hideTooltip();
-      }
-    }
-
-    function hideTooltip(){
-      tooltip.classList.remove('visible');
-      tooltip.hidden = true;
-    }
-
-    function wrapStar(s){
-      if(s.x < WORLD.minX) s.x = WORLD.maxX;
-      if(s.x > WORLD.maxX) s.x = WORLD.minX;
-      if(s.y < WORLD.minY) s.y = WORLD.maxY;
-      if(s.y > WORLD.maxY) s.y = WORLD.minY;
-    }
-
-    function draw(){
-      // Advance gentle drift
-      for(const s of stars){ s.x += s.vx; s.y += s.vy; wrapStar(s); }
-
-      // Clear
-      ctx.clearRect(0,0,W,H);
-
-      // Translate world by camera (center pivot)
-      ctx.save();
-      ctx.translate(W/2 - camera.x, H/2 - camera.y);
-
-      // Draw background stars (faint)
-      ctx.globalCompositeOperation = 'screen';
-      ctx.fillStyle = 'rgba(255,255,255,.55)';
-      for(const b of bgStars){
-        ctx.globalAlpha = b.a;
-        ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2); ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-
-      // Draw edges
-      ctx.lineWidth = 0.9;
-      for(const [i,j] of edges){
-        const a = stars[i], b = stars[j];
-        // subtle color mix
-        const grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
-        grad.addColorStop(0, hexWithAlpha(a.color, 0.35));
-        grad.addColorStop(1, hexWithAlpha(b.color, 0.35));
-        ctx.strokeStyle = grad;
-        ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
-      }
-
-      // Draw stars (foreground points)
-      for(const s of stars){
-        ctx.fillStyle = s.color;
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r+0.8, 0, Math.PI*2); ctx.fill();
-        // core glow
-        ctx.fillStyle = 'white';
-        ctx.beginPath(); ctx.arc(s.x, s.y, s.r*0.6, 0, Math.PI*2); ctx.fill();
-      }
-
-      ctx.restore();
-      requestAnimationFrame(draw);
-    }
-
-    function hexWithAlpha(hex, alpha){
-      // Convert #rrggbb to rgba(r,g,b,alpha)
-      const m = hex.match(/^#([\da-f]{2})([\da-f]{2})([\da-f]{2})$/i);
-      if(!m) return `rgba(255,255,255,${alpha})`;
-      const r = parseInt(m[1],16), g = parseInt(m[2],16), b = parseInt(m[3],16);
-      return `rgba(${r},${g},${b},${alpha})`;
-       }
-
-    requestAnimationFrame(draw);
-
-    // Help text for screen readers (hidden visually by canvas)
-    canvas.setAttribute('title','Click and drag to pan. Hover stars to see titles. Click to open narratives in a new tab.');
-  </script>
+        function windowResized() {
+            resizeCanvas(windowWidth, windowHeight);
+        }
+    </script>
 </body>
+</html>
